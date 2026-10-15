@@ -4,8 +4,6 @@ namespace Omnilab\Cds;
 
 use Omnilab\Exception\NotSupportedException;
 use Omnilab\Exception\ProviderException;
-use Omnilab\Exception\RateLimitedException;
-use Omnilab\Exception\UnavailableException;
 use Omnilab\Model\Asset;
 use Omnilab\Model\BBox;
 use Omnilab\Model\Point;
@@ -15,8 +13,6 @@ use Omnilab\Source\HttpSource;
 use Omnilab\Source\Page;
 use Omnilab\Source\ProductQuery;
 use Omnilab\Source\Query;
-use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -52,8 +48,6 @@ final class CdsSource extends HttpSource
 
     /** The most datasets a page of the catalogue's search answers. */
     public const MAX_PER_PAGE = 100;
-
-    private float $lastPost = 0.0;
 
     /**
      * @param string      $name    what the source is configured as: "cds", "cams" (the Atmosphere Data Store)...
@@ -175,7 +169,7 @@ final class CdsSource extends HttpSource
      */
     public function cost(string $dataset, array $request): array
     {
-        $data = $this->post('retrieve/v1/processes/'.rawurlencode($dataset).'/costing', ['inputs' => (object) $request], false);
+        $data = $this->postForJson('retrieve/v1/processes/'.rawurlencode($dataset).'/costing', ['inputs' => (object) $request]) ?? [];
 
         return [
             'cost' => isset($data['cost']) ? (float) $data['cost'] : null,
@@ -195,7 +189,7 @@ final class CdsSource extends HttpSource
      */
     public function submit(string $dataset, array $request): Product
     {
-        $data = $this->post('retrieve/v1/processes/'.rawurlencode($dataset).'/execution', ['inputs' => (object) $request], true);
+        $data = $this->postForJson('retrieve/v1/processes/'.rawurlencode($dataset).'/execution', ['inputs' => (object) $request], [], $this->auth());
         if (!isset($data['jobID'])) {
             throw new ProviderException($this->name, 'the store answered a request without a job');
         }
@@ -426,49 +420,5 @@ final class CdsSource extends HttpSource
         }
 
         return rtrim($this->baseUri, '/').'/'.ltrim($href, '/');
-    }
-
-    /**
-     * POSTs JSON, the errors mapped as HttpSource maps a GET's (the core's
-     * HttpSource has no POST).
-     *
-     * @param array<string, mixed> $body
-     *
-     * @return array<string, mixed>
-     */
-    private function post(string $path, array $body, bool $authenticated): array
-    {
-        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'] + ($authenticated ? $this->auth() : []) + $this->headers;
-        if ($this->throttle > 0 && $this->lastPost > 0 && ($left = $this->throttle - (microtime(true) - $this->lastPost)) > 0) {
-            usleep((int) ($left * 1_000_000));
-        }
-        $this->lastPost = microtime(true);
-        try {
-            $response = $this->http->request('POST', $this->resolve($path), ['headers' => $headers, 'body' => json_encode($body, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES)]);
-            $status = $response->getStatusCode();
-            $content = $response->getContent(false);
-        } catch (TransportExceptionInterface $e) {
-            throw new UnavailableException($this->name, 'unreachable: '.$e->getMessage(), null, $e);
-        } catch (ExceptionInterface $e) {
-            throw new ProviderException($this->name, $e->getMessage(), null, $e);
-        }
-        $data = json_decode($content, true);
-        if (429 === $status) {
-            throw new RateLimitedException($this->name, null);
-        }
-        if ($status >= 500) {
-            throw new UnavailableException($this->name, \sprintf('the service answered %d', $status), $status);
-        }
-        if ($status >= 400) {
-            // The store's errors: a title ("permission denied", "required licences not accepted") and a detail.
-            $reason = \is_array($data) ? implode(': ', array_filter([$data['title'] ?? null, $data['detail'] ?? null], 'is_string')) : '';
-
-            throw new ProviderException($this->name, \sprintf('the service answered %d: %s', $status, '' !== $reason ? $reason : trim(strip_tags(substr($content, 0, 300)))), $status);
-        }
-        if (!\is_array($data)) {
-            throw new ProviderException($this->name, 'the answer is not JSON');
-        }
-
-        return $data;
     }
 }
