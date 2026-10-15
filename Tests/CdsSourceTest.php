@@ -8,9 +8,12 @@ use Omnilab\Exception\NotSupportedException;
 use Omnilab\Exception\ProviderException;
 use Omnilab\Exception\RateLimitedException;
 use Omnilab\Exception\UnavailableException;
+use Omnilab\Model\Asset;
 use Omnilab\Model\BBox;
+use Omnilab\Model\Job;
 use Omnilab\Model\Point;
 use Omnilab\Source\Capability;
+use Omnilab\Source\JobSourceInterface;
 use Omnilab\Source\ProductQuery;
 use Omnilab\Source\Query;
 use Omnilab\Source\SeriesQuery;
@@ -181,9 +184,24 @@ final class CdsSourceTest extends TestCase
         self::assertStringEndsWith('/jobs/'.self::JOB.'/results', $this->calls[2][1]);
         self::assertSame(['PRIVATE-TOKEN: '.self::KEY], $this->calls[2][3]);
 
+        self::assertInstanceOf(Job::class, $done, 'the core\'s Job, a Product');
+        self::assertInstanceOf(JobSourceInterface::class, $source);
+        self::assertSame([Job::SUCCESSFUL, 100.0, true, true, $file], [$done->status, $done->progress, $done->isDone(), $done->isSuccessful(), $done->file()]);
+        self::assertSame([Job::ACCEPTED, null, false, null], [$job->status, $job->progress, $job->isDone(), $job->file()]);
+
         $failed = $source->job('9bfc1362-2832-48e1-a235-359267420bb3');
         self::assertSame([CdsSource::FAILED, []], [$failed->properties['status'], $failed->assets]);
+        self::assertSame([true, false], [$failed->isDone(), $failed->isSuccessful()]);
         self::assertCount(4, $this->calls, 'no results asked of a failed request');
+    }
+
+    public function testAFileOpenedWithTheKey(): void
+    {
+        $response = $this->source(['key' => self::KEY], new MockResponse('CDF'))->open(new Asset('data', 'https://object-store.example/x.nc', 'application/netcdf', ['data']));
+        self::assertSame('CDF', $response->getContent());
+        self::assertSame(['GET', 'https://object-store.example/x.nc', ['PRIVATE-TOKEN: '.self::KEY]], [$this->calls[0][0], $this->calls[0][1], $this->calls[0][3]]);
+        $this->expectException(NotSupportedException::class);
+        $this->source()->open('s3://bucket/x.nc');
     }
 
     public function testTheAccountsRequests(): void
@@ -226,7 +244,7 @@ final class CdsSourceTest extends TestCase
     {
         self::assertSame('cds', (new CdsSourceFactory())->getName());
         self::assertSame('cds', $this->source()->getName());
-        self::assertSame([Capability::PRODUCTS, Capability::AREA], $this->source()->capabilities());
+        self::assertSame([Capability::PRODUCTS, Capability::AREA, Capability::DATASETS, Capability::JOBS, Capability::OPEN], $this->source()->capabilities());
     }
 
     public function testErrors(): void

@@ -26,8 +26,8 @@ $cds->cost('reanalysis-era5-single-levels', $request);   // ['cost' => 6.0, 'lim
 // With a key: submit, then ask again until the file is there.
 $cds = (new CdsSourceFactory($http))->create(['key' => getenv('CDS_KEY')]);
 $job = $cds->submit('reanalysis-era5-single-levels', $request);   // status: accepted
-$job = $cds->job($job->id);                                       // ... running, then successful
-$job->asset('data')?->href;                                       // the NetCDF to download
+$job = $cds->job($job->id);                                       // ... running, then successful: $job->isDone()
+$cds->open($job->file());                                         // the NetCDF, streamed (the core's Job and open())
 ```
 
 ```yaml

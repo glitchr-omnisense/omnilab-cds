@@ -4,16 +4,21 @@ namespace Omnilab\Cds;
 
 use Omnilab\Exception\NotSupportedException;
 use Omnilab\Exception\ProviderException;
+use Omnilab\Exception\UnavailableException;
 use Omnilab\Model\Asset;
 use Omnilab\Model\BBox;
+use Omnilab\Model\Job;
 use Omnilab\Model\Point;
 use Omnilab\Model\Product;
 use Omnilab\Source\Capability;
 use Omnilab\Source\HttpSource;
+use Omnilab\Source\JobSourceInterface;
 use Omnilab\Source\Page;
 use Omnilab\Source\ProductQuery;
 use Omnilab\Source\Query;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * An ECMWF data store (the software behind the Copernicus Climate Data
@@ -33,18 +38,18 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  * running, then successful (or failed, rejected, dismissed); the source
  * never waits - the application asks job() again.
  */
-final class CdsSource extends HttpSource
+final class CdsSource extends HttpSource implements JobSourceInterface
 {
     public const CDS_URI = 'https://cds.climate.copernicus.eu/api/';
     public const ADS_URI = 'https://ads.atmosphere.copernicus.eu/api/';
 
-    /** A request's states: queued, running, done, and the ends without a file. */
-    public const ACCEPTED = 'accepted';
-    public const RUNNING = 'running';
-    public const SUCCESSFUL = 'successful';
-    public const FAILED = 'failed';
-    public const REJECTED = 'rejected';
-    public const DISMISSED = 'dismissed';
+    /** A request's states: queued, running, done, and the ends without a file (the core's Job's). */
+    public const ACCEPTED = Job::ACCEPTED;
+    public const RUNNING = Job::RUNNING;
+    public const SUCCESSFUL = Job::SUCCESSFUL;
+    public const FAILED = Job::FAILED;
+    public const REJECTED = Job::REJECTED;
+    public const DISMISSED = Job::DISMISSED;
 
     /** The most datasets a page of the catalogue's search answers. */
     public const MAX_PER_PAGE = 100;
@@ -72,7 +77,7 @@ final class CdsSource extends HttpSource
 
     public function capabilities(): array
     {
-        return [Capability::PRODUCTS, Capability::AREA];
+        return [Capability::PRODUCTS, Capability::AREA, Capability::DATASETS, Capability::JOBS, Capability::OPEN];
     }
 
     /**
@@ -111,9 +116,8 @@ final class CdsSource extends HttpSource
 
     /**
      * The catalogue's datasets that match a text, the best match first
-     * (its own search: titles, descriptions, keywords), a page at a time.
-     * Outside the contract: the core's search() answers entities, and a
-     * dataset is a Product.
+     * (its own search: titles, descriptions, keywords), a page at a time:
+     * the contract's datasets().
      *
      * @return Page<Product>
      */
@@ -187,7 +191,7 @@ final class CdsSource extends HttpSource
      *
      * @param array<string, mixed> $request the dataset's inputs (dataset() lists them)
      */
-    public function submit(string $dataset, array $request): Product
+    public function submit(string $dataset, array $request): Job
     {
         $data = $this->postForJson('retrieve/v1/processes/'.rawurlencode($dataset).'/execution', ['inputs' => (object) $request], [], $this->auth());
         if (!isset($data['jobID'])) {
@@ -203,7 +207,7 @@ final class CdsSource extends HttpSource
      * checksum in properties). Null when the store does not know it (or no
      * longer: results are kept for a while, then deleted).
      */
-    public function job(string $id): ?Product
+    public function job(string $id): ?Job
     {
         $data = $this->getJson('retrieve/v1/jobs/'.rawurlencode($id), ['request' => 'true'], $this->auth());
         if (null === $data) {
@@ -229,7 +233,7 @@ final class CdsSource extends HttpSource
      * reads one's). The store lists them all together: a query that names
      * datasets, a place or a period is refused.
      *
-     * @return Page<Product>
+     * @return Page<Job>
      */
     public function jobs(ProductQuery $query = new ProductQuery()): Page
     {
@@ -249,6 +253,24 @@ final class CdsSource extends HttpSource
         }
 
         return new Page($jobs, $jobs ? $next : null);
+    }
+
+    /**
+     * A job's file (its "data" asset, or its address) read with the key
+     * when there is one: the response, streamed. Nothing is decoded (a
+     * NetCDF, a GRIB, a zip).
+     */
+    public function open(Asset|string $file): ResponseInterface
+    {
+        $href = $file instanceof Asset ? ($file->httpsHref() ?? $file->href) : $file;
+        if (!str_starts_with($href, 'https://')) {
+            throw NotSupportedException::operation($this->name, 'open an address other than https:// ('.$href.')');
+        }
+        try {
+            return $this->http->request('GET', $href, ['headers' => (null === $this->key || '' === $this->key ? [] : ['PRIVATE-TOKEN' => $this->key]) + $this->headers]);
+        } catch (TransportExceptionInterface $e) {
+            throw new UnavailableException($this->name, 'unreachable: '.$e->getMessage(), null, $e);
+        }
     }
 
     /**
@@ -300,12 +322,12 @@ final class CdsSource extends HttpSource
     }
 
     /**
-     * A job as a Product.
+     * A job as the core's Job: a Product in the making.
      *
      * @param array<string, mixed>                          $job
      * @param array{string, array<string, mixed>|null}|null $results the results' address and answer, when successful
      */
-    private function toJob(array $job, ?array $results): Product
+    private function toJob(array $job, ?array $results): Job
     {
         $properties = array_filter([
             'status' => $job['status'] ?? null,
@@ -313,10 +335,10 @@ final class CdsSource extends HttpSource
             'updated' => $job['updated'] ?? null,
             'request' => $job['metadata']['request']['ids'] ?? null,
         ], static fn (mixed $v) => null !== $v);
-        $assets = [];
+        $file = null;
         $value = $results[1]['asset']['value'] ?? null;
         if (\is_array($value) && \is_string($value['href'] ?? null)) {
-            $assets['data'] = new Asset(
+            $file = new Asset(
                 name: 'data',
                 href: $this->resolve($value['href'], $results[0]),
                 type: $value['type'] ?? null,
@@ -333,15 +355,19 @@ final class CdsSource extends HttpSource
                 $monitor = $this->resolve($link['href']);
             }
         }
+        $status = (string) ($job['status'] ?? Job::ACCEPTED);
 
-        return new Product(
+        return new Job(
             id: (string) $job['jobID'],
-            collection: (string) ($job['processID'] ?? ''),
-            datetime: self::time($job['created'] ?? null),
-            start: self::time($job['started'] ?? null),
-            end: self::time($job['finished'] ?? null),
+            dataset: (string) ($job['processID'] ?? ''),
+            status: $status,
+            // The store says no percentage: done is 100.
+            progress: Job::SUCCESSFUL === $status ? 100.0 : null,
+            created: self::time($job['created'] ?? null),
+            started: self::time($job['started'] ?? null),
+            finished: self::time($job['finished'] ?? null),
             properties: $properties,
-            assets: $assets,
+            file: $file,
             url: $monitor ?? $this->resolve('retrieve/v1/jobs/'.rawurlencode((string) $job['jobID'])),
             source: $this->name,
         );

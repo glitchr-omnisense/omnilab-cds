@@ -45,13 +45,16 @@ of `CdsSource`:
 | `datasets(Query)` | the catalogue's search by text, the best match first, 100 a page at most; `total` the store's count | `catalogue/v1/datasets?q=&limit=&page=&sortby=relevance` |
 | `dataset($id)` | one dataset, with `inputs` (each input's `title`, `values`, `default`) and `variables` in its properties; null when unknown | `catalogue/v1/collections/{id}`, `retrieve/v1/processes/{id}` |
 | `cost($id, $request)` | `cost`, `limit`, `valid`, `reason` (the store's words when it finds the request invalid: a period not yet available, a combination it does not have) | POST `retrieve/v1/processes/{id}/costing` `{"inputs": ...}` |
-| `submit($id, $request)` | the request's product: the job's id, its status (`accepted`) | POST `retrieve/v1/processes/{id}/execution` `{"inputs": ...}`, with the key |
-| `job($jobId)` | the request as the store has it now: its status, its request, its times; once `successful`, its file as the `data` asset; null when unknown | `retrieve/v1/jobs/{id}?request=true`, then its `results` link when successful |
+| `open(Asset\|string)` | a job's file (or any https:// address of the store), with the key when there is one: the response, streamed, not read | GET, `PRIVATE-TOKEN` |
+| `submit($id, $request)` | the request's `Job` (a `Product`): the job's id, its status (`accepted`) | POST `retrieve/v1/processes/{id}/execution` `{"inputs": ...}`, with the key |
+| `job($jobId)` | the request as the store has it now, a `Job`: its `status`, its `progress` (100 once successful: the store gives no percentage), its request, its times; once `successful`, its file (`file()`, the `data` asset); null when unknown | `retrieve/v1/jobs/{id}?request=true`, then its `results` link when successful |
 | `jobs(ProductQuery)` | the account's requests, newest first (`OLDEST`), `limit` a page, the next by the store's `next` link (the cursor); a query naming datasets, a place or a period is refused | `retrieve/v1/jobs?limit=&sortby=-created` |
 
-Why beside the contract: the core's `search()` answers entities, and a dataset is a product; the
-contract has no request to submit nor job to follow (a `ProductQuery` holds no variables nor
-inputs). With a core that grew them, `datasets()` and `submit()`/`job()` would move in.
+In the contract since the core named them on 2026-10-15: `datasets()` and `open()`
+(`Capability::DATASETS`, `OPEN`), and `submit()`, `job()`, `jobs()` as the core's
+`JobSourceInterface` (`Capability::JOBS`), answering the core's `Job` - a `Product`, so every read
+of before (`properties['status']`, `asset('data')`) answers the same. `dataset()` and `cost()` stay
+the store's own.
 
 The store never waits for the source: `submit()` returns at once, and the application asks `job()`
 again (ECMWF's client waits from one second up to two minutes between two asks, growing by half).
