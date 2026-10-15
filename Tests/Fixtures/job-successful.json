@@ -1,0 +1,45 @@
+{
+    "processID": "reanalysis-era5-pressure-levels",
+    "type": "process",
+    "jobID": "9bfc1362-2832-48e1-a235-359267420bb2",
+    "status": "successful",
+    "created": "2022-09-02T17:30:48.201213",
+    "started": "2022-09-02T17:32:43.890617",
+    "finished": "2022-09-02T17:32:54.308120",
+    "updated": "2022-09-02T17:32:54.308116",
+    "links": [
+        {
+            "href": "9bfc1362-2832-48e1-a235-359267420bb2",
+            "rel": "self",
+            "type": "application/json"
+        },
+        {
+            "href": "https://cds.climate.copernicus.eu/api/retrieve/v1/jobs/9bfc1362-2832-48e1-a235-359267420bb2/results",
+            "rel": "results"
+        },
+        {
+            "href": "https://cds.climate.copernicus.eu/api/retrieve/v1/jobs/9bfc1362-2832-48e1-a235-359267420bb2",
+            "rel": "monitor",
+            "type": "application/json",
+            "title": "job status info"
+        }
+    ],
+    "metadata": {
+        "log": [
+            [
+                "2024-02-09T09:14:47.811223",
+                "This is a log"
+            ],
+            [
+                "2024-02-09T09:14:50.811223",
+                "WARNING: This is a warning log"
+            ]
+        ],
+        "request": {
+            "ids": {
+                "variable": "temperature",
+                "year": "2022"
+            }
+        }
+    }
+}

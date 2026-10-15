@@ -1,0 +1,46 @@
+{
+    "name": "omnilab/cds",
+    "type": "library",
+    "description": "Omnilab CDS: the Copernicus Climate Data Store - its datasets (ERA5, ERA5-Land, seasonal forecasts, climate projections, satellite and in-situ observations) as products over a place and a period, its catalogue's search, a dataset's variables and request form, what a request would cost, read without an account; with an account's key, a request submitted and followed until its file (NetCDF, GRIB, zip) is the product's asset to download. The client of ECMWF's data stores, which omnilab/cams uses for the Atmosphere Data Store.",
+    "keywords": [
+        "science",
+        "climate",
+        "reanalysis",
+        "era5",
+        "copernicus",
+        "c3s",
+        "ecmwf",
+        "omnilab"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marco Meyer",
+            "email": "marco.meyer@glitchr.io"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "glitchr/omnilab": "^1.0@dev",
+        "symfony/http-client": "^6.4|^7.0|^8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Omnilab\\Cds\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Omnilab\\Cds\\Tests\\": "Tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
