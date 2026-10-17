@@ -1,6 +1,6 @@
 # omnilab/cds
 
-The Copernicus Climate Data Store for [glitchr/omnilab](https://github.com/glitchr-studio/omnilab):
+The Copernicus Climate Data Store for [omniscient/omnilab](https://github.com/glitchr-studio/omnilab):
 its datasets - ERA5, ERA5-Land, the seasonal forecasts, the climate projections, satellite and
 in-situ observations - as products over a place and a period, its catalogue's search, a dataset's
 variables and request form, what a request would cost: all read without an account. With an
