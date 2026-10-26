@@ -1,6 +1,6 @@
 # omnilab/cds
 
-The Copernicus Climate Data Store for [omniscient/omnilab](https://github.com/glitchr-studio/omnilab):
+The Copernicus Climate Data Store for [omnisense/omnilab](https://github.com/glitchr-omnisense/omnilab):
 its datasets - ERA5, ERA5-Land, the seasonal forecasts, the climate projections, satellite and
 in-situ observations - as products over a place and a period, its catalogue's search, a dataset's
 variables and request form, what a request would cost: all read without an account. With an
@@ -57,7 +57,7 @@ before its first request: the store answers 403 until then.
 ## One client, two stores
 
 The Atmosphere Data Store (CAMS) runs the same software as the Climate Data Store: the same
-catalogue, the same requests. [omnilab/cams](https://github.com/glitchr-studio/omnilab-cams) uses
+catalogue, the same requests. [omnilab/cams](https://github.com/glitchr-omnisense/omnilab-cams) uses
 this package's source on the ADS's address. `CdsSource` takes a name and a base URI: another
 ECMWF data store is a `base_uri` away.
 
