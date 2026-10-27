@@ -1,5 +1,12 @@
 # omnilab/cds
 
+The Copernicus Climate Data Store (`https://cds.climate.copernicus.eu/api/`: its catalogue
+`catalogue/v1`, STAC; its requests `retrieve/v1`, OGC API - Processes) for
+[omnisense/omnilab](https://github.com/glitchr-omnisense/omnilab): ERA5, ERA5-Land, the seasonal
+forecasts, the climate projections and the store's other datasets as products and datasets,
+what a request would cost; with an account's key, the requests that make their files, followed as
+`Job`s. One client for ECMWF's data stores: omnilab/cams builds it on the Atmosphere Data Store.
+
 ## Installation
 
 ```sh
@@ -17,6 +24,48 @@ $cds = (new CdsSourceFactory($httpClient))->create([
 
 With the Symfony bundle, the factory is registered as `cds` when the bundle knows it; otherwise
 register `CdsSourceFactory` as a service (it is autoconfigured as a `SourceFactoryInterface`).
+
+## Credentials
+
+None to read the catalogue (`products()`, `datasets()`, `dataset()`, `cost()`). A request for a
+file (`submit()`, `job()`, `jobs()`) needs the personal access token of a Climate Data Store
+account, from its profile page on `cds.climate.copernicus.eu`, given as `key` and sent as
+`PRIVATE-TOKEN`; the account accepts each dataset's licence once on the store's site before its
+first request (a 403 before). The key is read from the configuration, never written.
+
+## Options
+
+The factory's options, with the defaults it applies (`CdsSourceFactory`):
+
+| Option | Type | Default | Required | Effect |
+|---|---|---|---|---|
+| `key` | `?string` | null | no | a CDS account's personal access token: `submit()`, `job()`, `jobs()` need it (refused without it, before any call); `open()` sends it when set |
+| `mailto` | `?string` | null | no | a contact address, sent in the User-Agent |
+| `user_agent` | `?string` | null | no | the whole User-Agent, in place of the one made from `mailto` |
+| `throttle` | `float` | `0` | no | seconds left between two calls: the store queues requests and limits their cost, it publishes no rate |
+| `base_uri` | `string` | `https://cds.climate.copernicus.eu/api/` | no | the store's API, ending in `/api/`: another ECMWF data store by its `/api/` address (the Atmosphere Data Store is omnilab/cams's) |
+
+## Capabilities
+
+`capabilities()` answers `products`, `area`, `datasets`, `jobs`, `open`; an operation it does not answer throws `NotSupportedException` before any call.
+
+| Capability | Supported | |
+|---|---|---|
+| `entity` | no | a dataset is a `Product`, not an entity; ERA5 as series at a point is omnilab/open-meteo's |
+| `search` | no |  |
+| `series` | no |  |
+| `products` | yes | the datasets that cover the place and overlap the period, the most recently updated first (oldest with `ProductQuery::OLDEST`); `collections` keeps those named; one call for the whole catalogue, paged by offset, `total` counted |
+| `occurrences` | no |  |
+| `datasets` | yes | the catalogue's own search, the best match first, 100 a page at most, `total` the store's count |
+| `jobs` | yes | implements `JobSourceInterface`; with the `key` only |
+| `open` | yes | a job's file (its `data` asset) or any `https://` address, the key sent when set; the response streamed, its status unchecked |
+| `structure` | no |  |
+| `cross_references` | no |  |
+| `forecast` | no |  |
+| `historical` | no |  |
+| `area` | yes | a `BBox` or a `Point`, against each dataset's extent |
+| `station` | no |  |
+| `cloud_cover` | no | a dataset has no cloud cover: `maxCloudCover` is refused |
 
 ## Which API
 
@@ -89,6 +138,59 @@ cover in `products()` (datasets have none). An answer that is not one: a `Provid
 the store's title and detail (401 "Authentication failed: operation not allowed" for a key it does
 not know), `UnavailableException` for a 5xx, `RateLimitedException` for a 429.
 
+## Example
+
+```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Omnilab\Cds\CdsSourceFactory;
+use Omnilab\Source\Query;
+use Symfony\Component\HttpClient\HttpClient;
+
+$cds = (new CdsSourceFactory(HttpClient::create()))->create(['mailto' => 'you@example.org', 'key' => getenv('CDS_KEY') ?: null]);
+
+$found = $cds->datasets(new Query('era5 land', limit: 3));
+printf("%d datasets match \"era5 land\"; the first %d:\n", $found->total, count($found));
+foreach ($found as $dataset) {
+    printf("  %s  %s..%s\n", $dataset->id, $dataset->start?->format('Y-m-d'), $dataset->end?->format('Y-m-d') ?? 'open');
+}
+
+$request = ['product_type' => ['reanalysis'], 'variable' => ['2m_temperature'], 'year' => ['2025'], 'month' => ['07'], 'day' => ['01'], 'time' => ['12:00'], 'data_format' => 'netcdf', 'area' => [49, 7, 48, 8]];
+$cost = $cds->cost('reanalysis-era5-single-levels', $request);
+printf("one hour of 2 m temperature over Strasbourg costs %s of %s: %s\n", $cost['cost'], $cost['limit'], $cost['valid'] ? 'valid' : $cost['reason']);
+```
+
+```
+37 datasets match "era5 land"; the first 3:
+  reanalysis-era5-land-timeseries  1950-01-01..2026-12-31
+  reanalysis-era5-land  1950-01-01..2026-10-20
+  derived-era5-land-daily-statistics  1950-01-01..2026-10-20
+one hour of 2 m temperature over Strasbourg costs 6 of 121000: valid
+```
+
+(as answered on 2026-10-27, without an account). With a key the same `$request` is submitted and
+followed to its file ([the core's datasets guide](https://github.com/glitchr-omnisense/omnilab/blob/1.x/docs/datasets.md#asynchronous-requests-job)):
+`$job = $cds->submit('reanalysis-era5-single-levels', $request)`, `$cds->job($job->id)` until
+`isDone()`, then `$cds->open($job->file())` - not run here (no account).
+
+```yaml
+# config/packages/omnilab.yaml
+omnilab:
+    sources:
+        cds: { factory: cds, options: { mailto: '%env(OMNILAB_MAILTO)%', key: '%env(default::CDS_KEY)%' } }
+```
+
+## Errors
+
+Every call goes through `HttpSource`: a 404 or a 410 (and a 204) is null - an empty page for a list -; a 429 is a `RateLimitedException` (`retryAfter` from `Retry-After`); a 5xx, a time-out or a host that does not answer an `UnavailableException`; any other 4xx a `ProviderException` with its `status` and what the service said; an answer that is not JSON a `ProviderException`, a web page answered for JSON an `UnavailableException`.
+
+The refusals before any call are [above](#refused-before-any-call). Besides: `submit()` of an
+answer without a job id is a `ProviderException`; the store's problem details (RFC 9457, title
+and detail) are read into the message. `open()` maps only an unreachable host
+(`UnavailableException`): the response is returned as it is, its status the caller's to check.
+
 ## Verified, and not
 
 Against the real store on 2026-10-15, without an account: the catalogue's 144 datasets, 43 of them
@@ -111,3 +213,18 @@ listing fixtures `Tests/Fixtures/job-*.json` and `jobs.json` follow, on the stor
 OGC API - Processes; the store's 403 for a licence not yet accepted is its documented answer, not
 seen here. A result file's address is made absolute whether the store gives it absolute or, as in the
 client's tests, relative to the results' address.
+
+Again on 2026-10-27, without an account: the search for "era5 land" (37 matches, the same three
+first) and the cost of one hour of 2 m temperature over Strasbourg (6 of 121,000, valid: the
+example above).
+
+## Responsibility
+
+This package is an independent, unofficial client: it is not affiliated with, endorsed by or
+sponsored by ECMWF, the Copernicus Climate Change Service or the European Commission. The store is
+free; its datasets carry their own licences (most CC-BY-4.0, credit "Copernicus Climate Change
+Service"), accepted per dataset by the account, and a request beyond a dataset's cost limit is
+refused, as the README's [Terms of use](https://github.com/glitchr-omnisense/omnilab-cds#terms-of-use)
+says. Whoever runs the package is responsible for complying with them and for any use made of
+what it returns: see the README's
+[Responsibility](https://github.com/glitchr-omnisense/omnilab-cds#responsibility) section.
