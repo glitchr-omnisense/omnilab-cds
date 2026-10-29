@@ -5,6 +5,7 @@ namespace Omnilab\Cds;
 use Omnilab\Exception\NotSupportedException;
 use Omnilab\Exception\ProviderException;
 use Omnilab\Exception\UnavailableException;
+use Omnilab\Http\Redaction;
 use Omnilab\Model\Asset;
 use Omnilab\Model\BBox;
 use Omnilab\Model\Job;
@@ -269,7 +270,13 @@ final class CdsSource extends HttpSource implements JobSourceInterface
         try {
             return $this->http->request('GET', $href, ['headers' => (null === $this->key || '' === $this->key ? [] : ['PRIVATE-TOKEN' => $this->key]) + $this->headers]);
         } catch (TransportExceptionInterface $e) {
-            throw new UnavailableException($this->name, 'unreachable: '.$e->getMessage(), null, $e);
+            // The token masked in the message and the previous, a copy; no trace keeps the headers.
+            $secrets = Redaction::secrets($href, ['headers' => $this->headers]);
+            if (null !== $this->key && '' !== $this->key) {
+                $secrets[] = $this->key;
+            }
+
+            throw Redaction::withoutArguments(new UnavailableException($this->name, 'unreachable: '.Redaction::text($e->getMessage(), $secrets), null, Redaction::copy($e, $secrets)));
         }
     }
 
