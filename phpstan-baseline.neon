@@ -1,0 +1,433 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Argument of an invalid type mixed supplied for foreach, only iterables are supported\.$#'
+			identifier: foreach.nonIterable
+			count: 8
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''bbox'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''default'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''enum'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''href'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''ids'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''interval'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''items'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''rel'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 5
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''request'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''schema'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''spatial'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''temporal'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''title'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset ''value'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset 0 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 3
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot access offset 1 on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot cast mixed to float\.$#'
+			identifier: cast.double
+			count: 2
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot cast mixed to int\.$#'
+			identifier: cast.int
+			count: 2
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 10
+			path: CdsSource.php
+
+		-
+			message: '#^Method Omnilab\\Cds\\CdsSource\:\:box\(\) has parameter \$bbox with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Offset 0 might not exist on array\{string, array\<string, mixed\>\|null\}\|null\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_filter expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 2
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, ''floatval'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, ''strval'' given\.$#'
+			identifier: argument.type
+			count: 2
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\)\: Omnilab\\Model\\Job given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \#1 \$callback of function array_map expects \(callable\(mixed\)\: mixed\)\|null, Closure\(array\<string, mixed\>, array\<string, mixed\>\=\)\: Omnilab\\Model\\Product given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \#1 \$collection of method Omnilab\\Cds\\CdsSource\:\:toDataset\(\) expects array\<string, mixed\>, array given\.$#'
+			identifier: argument.type
+			count: 2
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \#1 \$collection of method Omnilab\\Cds\\CdsSource\:\:toDataset\(\) expects array\<string, mixed\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \#1 \$job of method Omnilab\\Cds\\CdsSource\:\:toJob\(\) expects array\<string, mixed\>, array given\.$#'
+			identifier: argument.type
+			count: 3
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \#1 \$time of static method Omnilab\\Source\\HttpSource\:\:time\(\) expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 5
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \#2 \$array of function array_map expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \#2 \$results of method Omnilab\\Cds\\CdsSource\:\:toJob\(\) expects array\{string, array\<string, mixed\>\|null\}\|null, array\{string, array\|null\}\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \#3 \$type of class Omnilab\\Model\\Asset constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \#5 \$title of class Omnilab\\Model\\Asset constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Parameter \$type of class Omnilab\\Model\\Asset constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CdsSource.php
+
+		-
+			message: '#^Cannot cast mixed to float\.$#'
+			identifier: cast.double
+			count: 1
+			path: CdsSourceFactory.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 1
+			path: CdsSourceFactory.php
+
+		-
+			message: '#^Parameter \#4 \$key of class Omnilab\\Cds\\CdsSource constructor expects string\|null, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: CdsSourceFactory.php
+
+		-
+			message: '#^Cannot access offset ''private\-token'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access offset ''title'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access offset ''variable'' on mixed\.$#'
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$assets on Omnilab\\Model\\Job\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$bbox on Omnilab\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$collection on Omnilab\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$datetime on Omnilab\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$end on Omnilab\\Model\\Job\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$end on Omnilab\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$href on Omnilab\\Model\\Asset\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$id on Omnilab\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$preview on Omnilab\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$properties on Omnilab\\Model\\Job\|null\.$#'
+			identifier: property.nonObject
+			count: 4
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$properties on Omnilab\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 7
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$roles on Omnilab\\Model\\Asset\|null\.$#'
+			identifier: property.nonObject
+			count: 3
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$size on Omnilab\\Model\\Asset\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$source on Omnilab\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$start on Omnilab\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$type on Omnilab\\Model\\Asset\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot access property \$url on Omnilab\\Model\\Product\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot call method asset\(\) on Omnilab\\Model\\Job\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot call method asset\(\) on Omnilab\\Model\\Product\|null\.$#'
+			identifier: method.nonObject
+			count: 4
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot call method format\(\) on DateTimeImmutable\|null\.$#'
+			identifier: method.nonObject
+			count: 4
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot call method isDone\(\) on Omnilab\\Model\\Job\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot call method isSuccessful\(\) on Omnilab\\Model\\Job\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot call method toArray\(\) on Omnilab\\Model\\BBox\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Cannot cast mixed to string\.$#'
+			identifier: cast.string
+			count: 2
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Method Omnilab\\Cds\\Tests\\CdsSourceTest\:\:source\(\) has parameter \$options with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_keys expects array, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Parameter \#1 \$options of method Omnilab\\Source\\SourceFactory\:\:create\(\) expects array\<string, mixed\>, array given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert\:\:assertContains\(\) expects iterable, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert\:\:assertCount\(\) expects Countable\|iterable, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: Tests/CdsSourceTest.php
+
+		-
+			message: '#^Property Omnilab\\Cds\\Tests\\CdsSourceTest\:\:\$calls \(list\<array\{string, string, string, list\<string\>\}\>\) does not accept non\-empty\-list\<array\{string, string, string, mixed\}\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: Tests/CdsSourceTest.php

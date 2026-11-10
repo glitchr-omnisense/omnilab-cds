@@ -69,6 +69,17 @@ dataset's limit is refused (`cost()` says before). The catalogue answers whole i
 
 See [docs/](docs/index.md) for what is read, how it maps, and what is left out.
 
+## Usage policy
+
+Declared as data in [`policy.json`](policy.json) (read at https://cds.climate.copernicus.eu/how-to-api on 2026-11-10), and honoured on every request by the
+core: a limit reached waits when its window ends within `max_wait` seconds, else the request is not
+sent ([Usage policies](https://github.com/glitchr-omnisense/omnilab/blob/1.x/docs/policies.md)).
+
+- Limits: not published (unknown).
+- Licence: not stated; commercial use: unknown.
+- Credit: required: Generated using Copernicus Climate Change Service information [Year] (https://cds.climate.copernicus.eu/licences/licence-to-use-copernicus-products).
+- Needs: nothing.
+
 ## Responsibility
 
 This package is an independent, unofficial client: it is not affiliated with, endorsed by or

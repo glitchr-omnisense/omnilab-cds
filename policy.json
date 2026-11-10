@@ -1,0 +1,40 @@
+{
+    "$schema": "https://github.com/glitchr-omnisense/contracts/blob/1.x/resources/usage-policy.schema.json",
+    "provider": "cds",
+    "rateLimits": null,
+    "concurrency": null,
+    "rights": {
+        "commercial": "unknown",
+        "openSourceRequired": null,
+        "caching": {
+            "permission": "unknown",
+            "maxTtl": null
+        },
+        "storage": "unknown",
+        "redistribution": "unknown",
+        "attribution": {
+            "required": true,
+            "text": "Generated using Copernicus Climate Change Service information [Year]",
+            "url": "https://cds.climate.copernicus.eu/licences/licence-to-use-copernicus-products",
+            "where": [
+                "source"
+            ]
+        },
+        "licence": null
+    },
+    "requirements": {
+        "key": false,
+        "userAgent": {
+            "required": false,
+            "pattern": null
+        }
+    },
+    "provenance": {
+        "terms": "https://cds.climate.copernicus.eu/disclaimer-privacy",
+        "policy": "https://cds.climate.copernicus.eu/how-to-api",
+        "verifiedAt": "2026-11-10",
+        "declaredBy": "maintainer",
+        "contact": null,
+        "notes": "Read 2026-11-10: the how-to-api page and the Terms of Use (disclaimer-privacy) state no request rate, no concurrency and no User-Agent rule; content is used under the licence attributed to each dataset, accepted once per dataset on its page before the first request. Most CDS datasets are CC-BY-4.0 (licence page cc-by), others under the Licence to use Copernicus Products or restricted licences (e.g. CICERO CMIP6 indicators, E-OBS: non-commercial): licence null and commercial/storage/redistribution unknown at source level, check the dataset's licence. Credit: Licence to use Copernicus Products sec. 5.1 asks 'Generated using Copernicus Climate Change Service information [Year]' ('Contains modified ...' when modified). Catalogue reads need no key; submit/job need a personal access token (PRIVATE-TOKEN). Per-user caps on running/queued jobs (e.g. 12 simultaneous requests) appear only on undated ECMWF Confluence pages and the JS-rendered /live pages, not read: not declared. Requests are queued server-side. Contact: ECMWF support portal/forum (no API address published on the pages read). No rate-limit headers seen on a test call."
+    }
+}

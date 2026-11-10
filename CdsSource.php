@@ -267,6 +267,7 @@ final class CdsSource extends HttpSource implements JobSourceInterface
         if (!str_starts_with($href, 'https://')) {
             throw NotSupportedException::operation($this->name, 'open an address other than https:// ('.$href.')');
         }
+        $this->governed('GET', $href);
         try {
             return $this->http->request('GET', $href, ['headers' => (null === $this->key || '' === $this->key ? [] : ['PRIVATE-TOKEN' => $this->key]) + $this->headers]);
         } catch (TransportExceptionInterface $e) {
