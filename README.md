@@ -40,6 +40,35 @@ omnilab:
                 mailto: 'support@glitchr.io'   # in the User-Agent
 ```
 
+## Install and a first call
+
+```sh
+composer require omnilab/cds
+```
+
+A real call, with no account and no key: ERA5's entry in the Climate Data Store's catalogue (reading
+the catalogue needs no account). `mailto` is your address, sent in the User-Agent so that the
+service can reach you before it blocks a caller; the source keeps to the limits its
+[`policy.json`](policy.json) declares.
+
+```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Omnilab\Cds\CdsSourceFactory;
+
+$cds = (new CdsSourceFactory())->create(['mailto' => 'you@example.org']);   // your address, in the User-Agent
+$era5 = $cds->dataset('reanalysis-era5-single-levels');
+echo $era5->id, ': ', count($era5->properties['variables']), ' variables, DOI ', $era5->properties['sci:doi'], "\n";
+```
+
+Its output on 2026-11-13:
+
+```
+reanalysis-era5-single-levels: 262 variables, DOI 10.24381/cds.adbb2d47
+```
+
 ## Files are the application's to read
 
 A request's file is a NetCDF, a GRIB or a zip of them: this package gives its address, type, size
